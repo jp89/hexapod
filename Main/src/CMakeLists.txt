@@ -1,0 +1,6 @@
+include_directories(${Hexapod_SOURCE_DIR}/Main/inc)
+include_directories(${Hexapod_SOURCE_DIR}/ServoController/inc)
+link_directories(${Hexapod_SOURCE_DIR}/ServoController/src)
+add_executable(Main main.cc)
+target_link_libraries(Main ServoController)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
