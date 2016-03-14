@@ -2,6 +2,7 @@
 
 # TODO:
 # - add paring cmd line arguments
+# - handle compilation errors before deploying
 # - add syncing sysroot before bulding
 # - add better deploy configuration
 
@@ -9,21 +10,21 @@ readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
-#SHOULD_CLEAN=false
-SHOULD_CLEAN=true;
+SHOULD_CLEAN=false
+#SHOULD_CLEAN=true;
 BUILD_DIR_NAME="build"
 TOOLCHAIN_CMAKE_PATH="$HOME/code/rpi2/toolchain/toolchain.cmake"
-SHOULD_DEPLOY=false
-EXECUTABLE_NAME=hexapod
+SHOULD_DEPLOY=true
+EXECUTABLE_NAME=Hexapod
 
 parse_args() {
 	echo "> Parsing cmd line args "
 }
 
 create_build_dir() {
-	if [ ! -d $BUILD_DIR_NAME ]; then 
+	if [ ! -d $BUILD_DIR_NAME ]; then
  		echo "> Creating build dir"
-		mkdir $BUILD_DIR_NAME 
+		mkdir $BUILD_DIR_NAME
         fi
 }
 
@@ -35,26 +36,26 @@ clean_build_dir() {
 run_cmake() {
 	echo "> Running cmake"
 	cd $BUILD_DIR_NAME
-	cmake -D CMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_CMAKE_PATH .. 	
+	cmake -D CMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_CMAKE_PATH ..
 }
 
 run_make() {
 	echo "> Running make"
 	make
-	mv compile_commands.json ../ 
+	mv compile_commands.json ../
 }
 
 deploy() {
 	echo "> Deploying"
-	# already in build dir	
-	scp $EXECUTABLE_NAME pi@192.168.0.200:/home/pi/
+	# already in build dir
+	scp Main/src/$EXECUTABLE_NAME pi@192.168.0.200:/home/pi/
 }
 
 main () {
 	parse_args ARGS
 	create_build_dir
 	if [ !$SHOULD_CLEAN ]; then
- 		clean_build_dir		
+ 		clean_build_dir
 	fi
 	run_cmake
 	run_make
