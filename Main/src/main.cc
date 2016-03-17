@@ -1,34 +1,43 @@
+#include <memory>
 #include <iostream>
 #include <stdexcept>
 #include <unistd.h>
 
-#include <adafruit.h>
+#include <adafruit.hpp>
 
 const unsigned servoMin = 125;  // Min pulse length out of 4096
 const unsigned servoMax = 535;  // Max pulse length out of 4096
 
 int main (void) {
-    AdafruitServoHat servoHat = AdafruitServoHat_Create();
+    std::shared_ptr<AdafruitServoDriver> servoHat = nullptr;
+    try
+    {
+        servoHat = std::make_shared<AdafruitServoDriver>(0x40);
+    }
+    catch (std::runtime_error e)
+    {
+        std::cerr<<"Failed to create Adafruit Servo Driver.";
+        std::cerr<<e.what();
+        return 1;
+    }
 
-    if (!AdafruitServoHat_Init(servoHat))
+    try
     {
-      std::cout<<"\nFailed to initialize servo hat!\n";
+        servoHat->SetPWMFreq(50);
+        for (int i = 0; i < 3; i++)
+        {
+          servoHat->SetPWM(0, 0, servoMin);
+          sleep(1);
+          servoHat->SetPWM(0, 0, servoMin + ((servoMax - servoMin) / 2));
+          sleep(1);
+          servoHat->SetPWM(0, 0, servoMax);
+          sleep(1);
+        }
     }
-    else
+    catch (std::runtime_error e)
     {
-      std::cout<<"\nInitialized servo hat properly!\n";
+        std::cerr<<e.what();
     }
 
-    AdafruitServoHat_SetPWMFreq(servoHat, 50);
-    for (int i = 0; i < 5; i++)
-    {
-      AdafruitServoHat_SetPWM(servoHat, 0, 0, servoMin);
-      sleep(1);
-      AdafruitServoHat_SetPWM(servoHat, 0, 0, servoMin + ((servoMax - servoMin) / 2));
-      sleep(1);
-      AdafruitServoHat_SetPWM(servoHat, 0, 0, servoMax);
-      sleep(1);
-    }
-    AdafruitServoHat_Deinit(servoHat);
-    AdafruitServoHat_Destroy(servoHat);
+    return 0;
 }

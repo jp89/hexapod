@@ -1,0 +1,10 @@
+build/
+Adafruit_PWM_Servo_Driver
+CMakeLists.txt.user
+hexapod.config hexapod.creator hexapod.creator.user hexapod.files hexapod.includes
+hexapod.config
+hexapod.creator
+hexapod.creator.user
+hexapod.files
+hexapod.includes
+compile_commands.json
