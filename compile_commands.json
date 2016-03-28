@@ -1,12 +1,12 @@
 [
 {
-  "directory": "/home/jarek/code/rpi2/projects/hexapod/build/Main/src",
-  "command": "/home/jarek/code/rpi2/toolchain/arm-unknown-linux-gnueabihf/bin/arm-unknown-linux-gnueabihf-g++    -I/home/jarek/code/rpi2/projects/hexapod/Main/inc -I/home/jarek/code/rpi2/projects/hexapod/ServoController/inc    -o CMakeFiles/Main.dir/main.cc.o -c /home/jarek/code/rpi2/projects/hexapod/Main/src/main.cc",
-  "file": "/home/jarek/code/rpi2/projects/hexapod/Main/src/main.cc"
+  "directory": "/home/jarek/hexapod/build/Main/src",
+  "command": "/home/jarek/code/rpi2/toolchain/arm-unknown-linux-gnueabihf/bin/arm-unknown-linux-gnueabihf-g++    -I/home/jarek/hexapod/Main/inc -I/home/jarek/hexapod/ServoController/inc   -std=c++11   -o CMakeFiles/Main.dir/main.cc.o -c /home/jarek/hexapod/Main/src/main.cc",
+  "file": "/home/jarek/hexapod/Main/src/main.cc"
 },
 {
-  "directory": "/home/jarek/code/rpi2/projects/hexapod/build/ServoController/src",
-  "command": "/home/jarek/code/rpi2/toolchain/arm-unknown-linux-gnueabihf/bin/arm-unknown-linux-gnueabihf-g++    -I/home/jarek/code/rpi2/projects/hexapod/ServoController/inc    -o CMakeFiles/ServoController.dir/adafruit_i2c.cc.o -c /home/jarek/code/rpi2/projects/hexapod/ServoController/src/adafruit_i2c.cc",
-  "file": "/home/jarek/code/rpi2/projects/hexapod/ServoController/src/adafruit_i2c.cc"
+  "directory": "/home/jarek/hexapod/build/ServoController/src",
+  "command": "/home/jarek/code/rpi2/toolchain/arm-unknown-linux-gnueabihf/bin/arm-unknown-linux-gnueabihf-g++    -I/home/jarek/hexapod/ServoController/inc   -std=c++11   -o CMakeFiles/ServoController.dir/adafruit.cpp.o -c /home/jarek/hexapod/ServoController/src/adafruit.cpp",
+  "file": "/home/jarek/hexapod/ServoController/src/adafruit.cpp"
 }
 ]

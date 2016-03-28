@@ -1,7 +1,5 @@
 #include <adafruit.hpp>
 
-#include <linux/i2c-dev.h>
-
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,7 +11,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <stdexcept>
+
 #include <sstream>
 #include <string>
 #include <map>
@@ -41,24 +39,30 @@ const __u8 __ALLCALL__             = 0x01;
 const __u8 __INVRT__               = 0x10;
 const __u8 __OUTDRV__              = 0x04;
 
-AdafruitServoDriver::AdafruitServoDriver(const __u8 addr)
+void SleepMilliseconds(unsigned milliseconds);
+
+AdafruitServoDriver::AdafruitServoDriver(const __u8 addr, const __s8 i2cBusNumber_) : i2cBusNumber(i2cBusNumber_)
 {
   this->piVersion = GetRPiVersion();
-  this->adapter_nr = GetI2CBusNumber();
-  if (this->adapter_nr < 0)
+
+  if (this->i2cBusNumber < 0)
+  {
+    this->i2cBusNumber = GetI2CBusNumber();
+  }
+  if (this->i2cBusNumber < 0)
   {
     throw std::runtime_error("Couldn't get I2C bus number.");
   }
 
   char filename[20];
-  snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
-  if ((this->I2CHandle = open(filename, O_RDWR)) < 0)
+  snprintf(filename, 19, "/dev/i2c-%d", i2cBusNumber);
+  if ((this->i2cHandle = open(filename, O_RDWR)) < 0)
   {
     std::stringstream ss;
     ss << "Couldn't open " << filename;
     throw std::runtime_error(ss.str());
   }
-  if (ioctl(this->I2CHandle, I2C_SLAVE, addr) < 0)
+  if (ioctl(this->i2cHandle, I2C_SLAVE, addr) < 0)
   {
     std::stringstream ss;
     ss << "Couldn't access i2c device on address " << addr;
@@ -75,29 +79,29 @@ AdafruitServoDriver::AdafruitServoDriver(const __u8 addr)
     throw;
   }
   __u8 res;
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE2__, __OUTDRV__);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE1__, __ALLCALL__);
-  this->SleepMilliseconds(5); // wait for oscillator
-  __u8 mode1 = i2c_smbus_read_byte_data(this->I2CHandle, __MODE1__);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE2__, __OUTDRV__);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE1__, __ALLCALL__);
+  SleepMilliseconds(5); // wait for oscillator
+  __u8 mode1 = i2c_smbus_read_byte_data(this->i2cHandle, __MODE1__);
   mode1 &= ~__SLEEP__; // wake up (reset sleep)
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE1__, mode1);
-  this->SleepMilliseconds(5); // wait for oscillator
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE1__, mode1);
+  SleepMilliseconds(5); // wait for oscillator
   if (res < 0 || mode1 < 0)
   {
-      goto err;
+    goto err;
   }
   std::cout<<"I2c initialized successfully!"<<std::endl;
   return;
 
 err:
-  close(this->I2CHandle);
+  close(this->i2cHandle);
   throw std::runtime_error(strerror(errno));
 }
 
 
 AdafruitServoDriver::~AdafruitServoDriver(void)
 {
-    close(this->I2CHandle);
+  close(this->i2cHandle);
 }
 
 AdafruitServoDriver::RaspberryPiVersion AdafruitServoDriver::GetRPiVersion(void)
@@ -142,13 +146,11 @@ AdafruitServoDriver::RaspberryPiVersion AdafruitServoDriver::GetRPiVersion(void)
     {
       continue;
     }
-    std::cout<<line;
-    for (auto it = revisionToVersion.begin(); it != revisionToVersion.end(); it++)
+    for (auto it: revisionToVersion)
     {
-
-      if (line.find(it->first) != std::string::npos)
+      if (line.find(it.first) != std::string::npos)
       {
-        result = it->second; // if revision matches return corresponding version
+        result = it.second; // if revision matches return corresponding version
         break;
       }
     }
@@ -173,32 +175,32 @@ short AdafruitServoDriver::GetI2CBusNumber(void)
     case RaspberryPiVersion::RPI_3:
     case RaspberryPiVersion::RPI_ZERO:
       {
-      std::cerr<<"This raspberry pi version is not supported yet."<<std::endl;
-      return -1;
+        std::cerr<<"This raspberry pi version is not supported yet."<<std::endl;
+        return -1;
       }
     default:
       return -1;
   }
 }
 
-void AdafruitServoDriver::SleepMilliseconds(unsigned milliseconds)
+void SleepMilliseconds(unsigned milliseconds)
 {
-    struct timespec t;
-    t.tv_sec = milliseconds / 1000;
-    t.tv_nsec = (milliseconds % 1000) * 1000000;
-    nanosleep(&t, NULL);
+  struct timespec t;
+  t.tv_sec = milliseconds / 1000;
+  t.tv_nsec = (milliseconds % 1000) * 1000000;
+  nanosleep(&t, NULL);
 }
 
 void AdafruitServoDriver::SetAllPWM(__u8 on , __u8 off)
 {
   bool res = true;
-  res &= i2c_smbus_write_byte_data(this->I2CHandle,__ALL_LED_ON_L__, on & 0xFF);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle,__ALL_LED_ON_H__, on >> 8);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle,__ALL_LED_OFF_L__, off & 0xFF);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle,__ALL_LED_OFF_H__, off >> 8);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle,__ALL_LED_ON_L__, on & 0xFF);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle,__ALL_LED_ON_H__, on >> 8);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle,__ALL_LED_OFF_L__, off & 0xFF);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle,__ALL_LED_OFF_H__, off >> 8);
   if (res < 0)
   {
-      throw std::runtime_error("I2C transaction failed.");
+    throw std::runtime_error("I2C transaction failed.");
   }
 }
 
@@ -207,28 +209,32 @@ void AdafruitServoDriver::SetPWMFreq(unsigned newFreq)
   bool res = true;
   int prescale = ((25000000.0 / (4096.0 * (double) newFreq)) - 1.0) + 0.5; // 25MHz / (2^12 * new frequency )
   std::cout<<"Setting PWM frequency to "<<newFreq<<". Esimated prescale value is: "<<prescale<<std::endl;
-  __u8 oldMode = i2c_smbus_read_byte_data(this->I2CHandle, __MODE1__);
+  __u8 oldMode = i2c_smbus_read_byte_data(this->i2cHandle, __MODE1__);
   __u8 newMode = (oldMode & 0x7F) | 0x10; // sleep
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE1__, newMode); // go to sleep
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __PRESCALE__, prescale);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE1__, oldMode);
-  AdafruitServoDriver::SleepMilliseconds(5);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __MODE1__, oldMode | 0x80);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE1__, newMode); // go to sleep
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __PRESCALE__, prescale);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE1__, oldMode);
+  SleepMilliseconds(5);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __MODE1__, oldMode | 0x80);
   if (res < 0)
   {
-      throw std::runtime_error("I2C transaction failed.");
+    throw std::runtime_error("I2C transaction failed.");
   }
 }
 
-void AdafruitServoDriver::SetPWM(const __u8 channel, const __u8 on, const __u8 off)
+void AdafruitServoDriver::SetPWM(const __u8 channel, const __u16 on, const __u16 off)
 {
+  if (channel > 15)
+  {
+    throw std::invalid_argument("Channel number should be in range 0-15\n");
+  }
   bool res = true;
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __LED0_ON_L__ + (4*channel), on & 0xFF);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __LED0_ON_H__ + (4*channel), on >> 8);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __LED0_OFF_L__ + (4*channel), off & 0xFF);
-  res &= i2c_smbus_write_byte_data(this->I2CHandle, __LED0_OFF_H__ + (4*channel), off >> 8);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __LED0_ON_L__ + (4*channel), on & 0xFF);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __LED0_ON_H__ + (4*channel), on >> 8);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __LED0_OFF_L__ + (4*channel), off & 0xFF);
+  res &= i2c_smbus_write_byte_data(this->i2cHandle, __LED0_OFF_H__ + (4*channel), off >> 8);
   if (res < 0)
   {
-      throw std::runtime_error("I2C transaction failed.");
+    throw std::runtime_error("I2C transaction failed.");
   }
 }
