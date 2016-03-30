@@ -1,6 +1,7 @@
 - [Intro](#intro)
-- [Plans / specification]($specification)
+- [Plans / specification](#specification)
 - [Hardware](#hardware)
+- [Software](#software)
 
 Intro
 -----
@@ -34,3 +35,25 @@ I've designed robot's body using Google SketchUp.
 All peaces were cut from PCV foarm ("forex").
 Unfortunatelly it's bendy but I don't have access to 3D printer.
 Also plexiglass is very popular with hobbyst robot constructors but it's harder to process.
+Hexapod's legs are powered by medium servos PowerHD HD-1160A.
+Servos are controlled by Raspberry Pi 2 and two Adafruit Servo Hats.
+
+Here are some pictures of robot's body (not yet completed):
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160119_190657410.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160121_195926524.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160122_203152024.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160125_200029162.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190640366.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190747610.jpg)
+![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190845341.jpg)
+[TODO add skecthup files]
+
+Software
+-----
+[TODO add high level design in UML]
+
+Adafruit provides an example of servo controlling application written in Python.
+I'd like my whole project to be written in C++, so I decided to port servo driver.
+Adafruit.cpp and adafruit.hpp files provide API very similar to the one from Python examples.
+If you would like to use this ported library all you need to do is include those files in
+your project and read adafruit.hpp comments.
