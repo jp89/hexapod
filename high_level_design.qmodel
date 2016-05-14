@@ -69,7 +69,7 @@
                          </base-DElement>
                          <object>{534b1d8f-b1d7-4e45-a9bc-ab859e1f90a9}</object>
                          <name>DecisionEngine</name>
-                         <pos>x:-340;y:325</pos>
+                         <pos>x:-470;y:370</pos>
                          <rect>x:-45;y:-30;w:90;h:60</rect>
                          <visual-role>0</visual-role>
                         </DObject>
@@ -149,8 +149,9 @@
                          </base-DElement>
                          <object>{4fd3e12f-9509-4335-9f85-d7cb4f7fc83e}</object>
                          <name>IKEngine</name>
-                         <pos>x:-350;y:610</pos>
+                         <pos>x:-330;y:370</pos>
                          <rect>x:-40;y:-30;w:80;h:60</rect>
+                         <auto-sized>false</auto-sized>
                          <visual-role>0</visual-role>
                         </DObject>
                        </base-DObject>
@@ -169,7 +170,7 @@
                          </base-DElement>
                          <object>{61bfda2d-7d34-48ce-8ef3-b983b4f6d41b}</object>
                          <name>ServoDriver</name>
-                         <pos>x:-575;y:610</pos>
+                         <pos>x:-580;y:565</pos>
                          <rect>x:-40;y:-30;w:80;h:60</rect>
                          <visual-role>0</visual-role>
                         </DObject>
@@ -322,7 +323,7 @@
                     </item>
                    </qlist>
                   </elements>
-                  <last-modified>1459712899341</last-modified>
+                  <last-modified>1459973600068</last-modified>
                  </MDiagram>
                 </base-MDiagram>
                </MCanvasDiagram>

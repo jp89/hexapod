@@ -41,9 +41,9 @@ private:
     int i2cHandle; /**< handle to i2c device file, POSIX functions are used to open, close, write, read */
     int i2cBusNumber; /**< number of i2c bus, differs between raspberry pi versions */
     RaspberryPiVersion piVersion; /**< version of raspberry pi, established based on board revision from cpuinfo file */
-    void SetAllPWM(const __u8 on, const __u8 off); /**< sets all PWM outputs, used internally */
-    short GetI2CBusNumber(void); /**< returns i2c bus number specific for given raspberry pi version */
-    RaspberryPiVersion GetRPiVersion(void); /**< returns raspberry pi version based on revision */
+    void setAllPWM(const __u8 on, const __u8 off); /**< sets all PWM outputs, used internally */
+    short getI2CBusNumber(void) const; /**< returns i2c bus number specific for given raspberry pi version */
+    RaspberryPiVersion getRPiVersion(void) const; /**< returns raspberry pi version based on revision */
 
 public:
     /**
@@ -56,14 +56,14 @@ public:
      * @brief SetPWMFreq sets frequency of output PWM signal.
      * @param newFreq   demanded frequency in Hz
      */
-    void SetPWMFreq(unsigned newFreq);
+    void setPWMFreq(unsigned newFreq);
     /**
      * @brief SetPWM allows to set output PWM wave on given channel.
      * @param channel   channel number, should be 0-15
      * @param on        beginning of high state in the output wave
      * @param off       end of high state in the output wave
      */
-    void SetPWM(const __u8 channel, const __u16 on, const __u16 off);
+    void setPWM(const __u8 channel, const __u16 on, const __u16 off);
 
 public:
     /**
@@ -81,7 +81,7 @@ public:
      * @brief SoftwareReset
      * Send SoftwareReset signal to all devices connected to i2c bus.
      */
-    static void SoftwareReset(void)
+    static void softwareReset(void)
     {
         if (i2c_smbus_write_byte(getInstance().handle.i2cHandle, SWRST) < 0)
         {

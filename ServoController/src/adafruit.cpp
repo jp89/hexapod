@@ -43,11 +43,11 @@ void SleepMilliseconds(unsigned milliseconds);
 
 AdafruitServoDriver::AdafruitServoDriver(const __u8 addr, const __s8 i2cBusNumber_) : i2cBusNumber(i2cBusNumber_)
 {
-  this->piVersion = GetRPiVersion();
+  this->piVersion = getRPiVersion();
 
   if (this->i2cBusNumber < 0)
   {
-    this->i2cBusNumber = GetI2CBusNumber();
+    this->i2cBusNumber = getI2CBusNumber();
   }
   if (this->i2cBusNumber < 0)
   {
@@ -72,7 +72,7 @@ AdafruitServoDriver::AdafruitServoDriver(const __u8 addr, const __s8 i2cBusNumbe
   std::cout<<"Reseting PCA9685 MODE1 (without SLEEP) and MODE2"<<std::endl;
   try
   {
-    this->SetAllPWM(0, 0);
+    this->setAllPWM(0, 0);
   }
   catch (std::runtime_error e)
   {
@@ -104,7 +104,7 @@ AdafruitServoDriver::~AdafruitServoDriver(void)
   close(this->i2cHandle);
 }
 
-AdafruitServoDriver::RaspberryPiVersion AdafruitServoDriver::GetRPiVersion(void)
+AdafruitServoDriver::RaspberryPiVersion AdafruitServoDriver::getRPiVersion(void) const
 {
   std::ifstream cpuinfoFile;
   cpuinfoFile.open("/proc/cpuinfo");
@@ -159,9 +159,9 @@ AdafruitServoDriver::RaspberryPiVersion AdafruitServoDriver::GetRPiVersion(void)
   return result;
 }
 
-short AdafruitServoDriver::GetI2CBusNumber(void)
+short AdafruitServoDriver::getI2CBusNumber(void) const
 {
-  switch (this->GetRPiVersion())
+  switch (this->getRPiVersion())
   {
     case RaspberryPiVersion::RPI_1:
       return 0;
@@ -191,7 +191,7 @@ void SleepMilliseconds(unsigned milliseconds)
   nanosleep(&t, NULL);
 }
 
-void AdafruitServoDriver::SetAllPWM(__u8 on , __u8 off)
+void AdafruitServoDriver::setAllPWM(__u8 on , __u8 off)
 {
   bool res = true;
   res &= i2c_smbus_write_byte_data(this->i2cHandle,__ALL_LED_ON_L__, on & 0xFF);
@@ -204,7 +204,7 @@ void AdafruitServoDriver::SetAllPWM(__u8 on , __u8 off)
   }
 }
 
-void AdafruitServoDriver::SetPWMFreq(unsigned newFreq)
+void AdafruitServoDriver::setPWMFreq(unsigned newFreq)
 {
   bool res = true;
   int prescale = ((25000000.0 / (4096.0 * (double) newFreq)) - 1.0) + 0.5; // 25MHz / (2^12 * new frequency )
@@ -222,7 +222,7 @@ void AdafruitServoDriver::SetPWMFreq(unsigned newFreq)
   }
 }
 
-void AdafruitServoDriver::SetPWM(const __u8 channel, const __u16 on, const __u16 off)
+void AdafruitServoDriver::setPWM(const __u8 channel, const __u16 on, const __u16 off)
 {
   if (channel > 15)
   {
