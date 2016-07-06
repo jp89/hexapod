@@ -1,4 +1,4 @@
-#include <adafruit.hpp>
+#include <adafruit_servohat_driver.hpp>
 
 #include <sys/ioctl.h>
 #include <sys/types.h>

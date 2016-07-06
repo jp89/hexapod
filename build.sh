@@ -37,6 +37,7 @@ run_cmake() {
 	echo "> Running cmake"
 	cd $BUILD_DIR_NAME
 	cmake -D CMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_CMAKE_PATH ..
+	# -D CMAKE_BUILD_TYPE=Debug ..
 }
 
 run_make() {
@@ -48,7 +49,7 @@ run_make() {
 deploy() {
 	echo "> Deploying"
 	# already in build dir
-	scp Main/src/$EXECUTABLE_NAME pi@192.168.0.200:/home/pi/
+	scp Main/src/$EXECUTABLE_NAME pi@192.168.0.128:/home/pi/
 }
 
 main () {
