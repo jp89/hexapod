@@ -31,22 +31,18 @@ Software:
 Hardware
 -----
 
-I've designed robot's body using Google SketchUp.
-All peaces were cut from PCV foarm ("forex").
-Unfortunatelly it's bendy but I don't have access to 3D printer.
-Also plexiglass is very popular with hobbyst robot constructors but it's harder to process.
-Hexapod's legs are powered by medium servos PowerHD HD-1160A.
-Servos are controlled by Raspberry Pi 2 and two Adafruit Servo Hats.
+I've designed robot's body using Google SketchUp - here is [project file](https://raw.githubusercontent.com/jp89/hexapod/master/hexapod_body.skp).
+All peaces were cut from PCV foarm ("forex"). I printed sections of all body parts, marked them on forex sheet and cut with sharp knife. Unfortunatelly this material is bendy but I don't have access to 3D printer. Also plexiglass is very popular with hobbyst robot constructors but it's harder to process. Hexapod's legs are powered by medium size-class servos PowerHD HD-1160A. Servos are controlled by Raspberry Pi 2 and two Adafruit Servo Hats.
 
 Here are some pictures of robot's body (not yet completed):
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160119_190657410.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160121_195926524.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160122_203152024.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160125_200029162.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190640366.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190747610.jpg)
-![alt tag](https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190845341.jpg)
-[TODO add skecthup files]
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160119_190657410.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160121_195926524.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160122_203152024.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160125_200029162.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190640366.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190747610.jpg" width = 500>
+<img src="https://raw.githubusercontent.com/jp89/hexapod/master/pics/IMG_20160201_190845341.jpg" width = 500>
+
 
 Software
 -----
