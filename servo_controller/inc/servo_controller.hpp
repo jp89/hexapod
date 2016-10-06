@@ -3,18 +3,18 @@
 
 #include <adafruit_servohat_driver.hpp>
 #include <vector>
-#include <list>
-#include <thread>
-#include <mutex>
-#include <utility>
+#include <memory>
 
-static const __u8 SERVO_MIN = 120;  // Min pulse length out of 4096
-static const __u16 SERVO_MAX = 540;  // Max pulse length out of 4096
-static const std::vector<__u8> ADDR = { 0x40 };
+using std::vector;
+using std::unique_ptr;
+
+static const uint8_t SERVO_MIN = 150;  // Min pulse length out of 4096
+static const uint16_t SERVO_MAX = 450;  // Max pulse length out of 4096
+static const vector<uint8_t> ADDR = { 0x40 };
 
 /**
  * @brief The AdafruitServoController class provides an interface for controlling digital servo
- * with (sort of) open-loop-ed controll of their speed (in percents, from 0 to 100).
+ * with open-loop-ed (sort of) controll of their speed (in percents, from 0 to 100).
  *
  * This class utilizes:
  * - AdafruitServoDriver - for accessing servos connected to Adafruit Servo Hat board
@@ -33,84 +33,15 @@ static const std::vector<__u8> ADDR = { 0x40 };
  * This will initialize AdafruitServoContoller and set first servo on first driver connected to the 90 degrees.
  *
  *
- *
+ * TODO: add delay based speed controll
  *
  */
 class  AdafruitServoController
 {
-private:
-    friend class ServoMovement;
-
-    /**
-     * @brief The ServoMovementParams struct includes servo's movement parameters.
-     */
-    struct ServoMovementParams
-    {
-        __u8 servoId; /**< servo's id */
-        __u16 pulse; /**< pulse length */
-        __u8 speed; /**< speed: from 0 to 100% */
-        /**
-         * @brief ServoMovementParams ctor
-         * @param servoId_
-         * @param pulse_
-         * @param speed_
-         */
-        ServoMovementParams(__u8 servoId_, __u16 pulse_, __u8 speed_);
-        /**
-         * @brief toString serializes structure to readable string
-         * @return string with servoid, pulse length and speed
-         */
-        std::string toString (void);
-    };
-
-    /**
-     * @brief The Job class is a helper class representing single movement "job". It basically cointains
-     * handle to thread setting PWM and allows to join and delete thread gracefully.
-     */
-    class ServoMovement
-    {
-    private:
-        std::thread* performMovementThread; /**< thread handle */
-        bool finished; /**< indicator if thread has finished it's job thus may be joined and deleted */
-        ServoMovementParams movementParams; /**< meta data about movement to perform */
-    public:
-        /**
-         * @brief ServoMovement ctor
-         * @param move_ parameters of movement
-         */
-        ServoMovement(ServoMovementParams move_);
-        ~ServoMovement();
-        /**
-         * @brief isFinished indicates if thread finished it's movement
-         * @return true if thread finished it's job
-         */
-        bool isFinished();
-        /**
-         * @brief sync joins the thread
-         */
-        void sync();
-    private:
-        /**
-         * @brief markAsFinished marks a thread as finished
-         */
-        void markAsFinished();
-        /**
-         * @brief performMovement this method performs servo movement
-         * sending commands to AdafruitServoDriver and handling delays in case
-         * of speed controll
-         */
-        void performMovement(void);
-    };
-    std::mutex driversMutex; /**< mutex protecting access to drivers list */
-    std::vector<AdafruitServoDriver*> drivers; /**< vector of handles to adafruit servo hat drivers */
-    const __u16 pulseMin = SERVO_MIN; /**< minimum pulse width used to drive single servo */
-    const __u16 pulseMax = SERVO_MAX; /**< maximum, as above */
-    const std::vector<__u8> addresses = ADDR; /**< vector of addresses of servo hat modules */
-    std::mutex scheduledMovementsMutex; /**< mutex protecting access to list of scheduled movements */
-    std::list<ServoMovementParams> scheduledMovements; /**< scheduler servo movements to be executed by worker thread. Movement is represented by servo id (__u8) and pulse width (__u16). */
-    std::list<ServoMovement*> movements; /**< list of thread handling servos movements at given speed */
-    std::thread workerThread; /**< worker thread firing and joining other threads handling servos movements */
-    bool running; /**< indicator if worker thread should be running or stopped */
+    vector<unique_ptr<AdafruitServoDriver> > drivers; /**< vector of handles to adafruit servo hat drivers */
+    const uint16_t pulseMin = SERVO_MIN; /**< minimum pulse width used to drive single servo */
+    const uint16_t pulseMax = SERVO_MAX; /**< maximum, as above */
+    const vector<uint8_t> addresses = ADDR; /**< vector of addresses of servo hat modules */
 
 public:
     /**
@@ -135,26 +66,22 @@ public:
     * @param angle 1-180 degrees
     * @param speed 1-100 % TODo add non-blocking implementation using std::thread
     */
-    void setServo(__u8 id, __u8 angle, __u8 speed = 100);
+    void setServo(uint8_t id, uint8_t angle, uint8_t speed = 100);
 private:
     /**
     * @brief AdafruitServoDriver creates easy to use interface for controlling multiple servos using multiple boards.
     */
     AdafruitServoController();
+
     /**
     * @brief calculateAngle calculates pulse width for given angle
     * @param angle in degress (1-180)
     * @return pulse width corresponding to the angle
     */
-    __u16 calculateAngle(__u8 angle)
+    uint16_t angleToPulse(uint8_t angle) const
     {
         return (((angle - 1) * (this->pulseMax - this->pulseMin)) / (180 - 1)) + this->pulseMin;
     }
-    /**
-    * @brief handleServos function executed by worker thread
-    * TODO add optimization - worker thread should sleep if moves list is empty
-    */
-    void handleServosThread (void);
     /**
      * @brief getDriverIdForServoId returns ID of servo driver that controlls given servo.
      * Example: let's assume that one driver may controll 16 servos. If we want to access
@@ -163,7 +90,7 @@ private:
      * @param id id of servo
      * @return id of driver controlling servo
      */
-    static const __u8 getDriverIdForServoId(__u8 id);
+     std::pair<uint8_t, uint8_t> getDriverAndServoId(uint8_t id) const;
 };
 
 #endif // SERVO_DRIVER_H

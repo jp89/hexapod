@@ -7,24 +7,19 @@
 
 const __u8 id = 0;
 
-const __u8 pos_min = 0;
-const __u8 pos_mid = 90;
-const __u8 pos_max = 180;
+const __u8 pos_min = 1;
+const __u8 pos_mid = 45;
+const __u8 pos_max = 90;
 
 int main (void) {
   try {
 
 
     AdafruitServoController& controller = AdafruitServoController::getInstance();
-//      controller.setServo(id, pos_min);
-    for (int i = 0; i < 1; i++)
+    for (int i = 1; i < 180; i++)
     {
-      controller.setServo(id, pos_min);
-      sleep(2);
-      controller.setServo(id, pos_mid);
-      sleep(2);
-      controller.setServo(id, pos_max);
-      sleep(2);
+      controller.setServo(0, i);
+      usleep(50000);
     }
   }
   catch (std::runtime_error& e)

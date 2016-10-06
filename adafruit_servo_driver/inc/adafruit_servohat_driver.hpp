@@ -7,8 +7,8 @@
 #include <linux/i2c-dev.h>
 
 /**
- *  This peace of code is an attempt to port Adafruit ServoHat driver from Python to C++.
- *  API is pretty similar to the python version. This code uses C++11.
+ *  This piece of code is an attempt to port Adafruit ServoHat driver from Python to C++.
+ *  API is pretty much the same as in the python version. This port utilizes C++11.
  *  I tried it only on Raspberry Pi 2 using custom toolchain created with crosstools-ng.
  *
  *  In order to initialize servo you need to:
