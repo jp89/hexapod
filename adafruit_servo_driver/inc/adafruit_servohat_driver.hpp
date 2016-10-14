@@ -7,9 +7,10 @@
 #include <linux/i2c-dev.h>
 
 /**
- *  This piece of code is an attempt to port Adafruit ServoHat driver from Python to C++.
- *  API is pretty much the same as in the python version. This port utilizes C++11.
- *  I tried it only on Raspberry Pi 2 using custom toolchain created with crosstools-ng.
+ *  This piece of code is an attempt to port Adafruit ServoHat driver from
+ *  Python to C++. API is pretty much the same as in the python version.
+ *  This port utilizes C++11. I tried it only on Raspberry Pi 2 using custom
+ *  toolchain created with crosstools-ng.
  *
  *  In order to initialize servo you need to:
  *  - create an instance of AdafruitServoDriver
@@ -17,8 +18,10 @@
  *  In order to move servo you just need to call SetPWM.
  *
  *  In general, two classes are defined:
- *  AdafruitServoDriver - this class is used for controlling single Adafruit ServoHat
- *  GweneralI2CCall - this singleton class is used for sending software reset to all ServoHats on I2C bus
+ *  AdafruitServoDriver - this class is used for controlling single
+ *                        Adafruit ServoHat shield.
+ *  GweneralI2CCall - this singleton class is used for sending software reset
+ *                    to all ServoHats on I2C bus.
  */
 
 class GeneralI2CCall;
@@ -37,20 +40,26 @@ private:
         RPI_ZERO,
         RPI_3
     };
-
-    int i2cHandle; /**< handle to i2c device file, POSIX functions are used to open, close, write, read */
-    int i2cBusNumber; /**< number of i2c bus, differs between raspberry pi versions */
-    RaspberryPiVersion piVersion; /**< version of raspberry pi, established based on board revision from cpuinfo file */
-    void setAllPWM(const __u8 on, const __u8 off); /**< sets all PWM outputs, used internally */
-    short getI2CBusNumber(void) const; /**< returns i2c bus number specific for given raspberry pi version */
-    RaspberryPiVersion getRPiVersion(void) const; /**< returns raspberry pi version based on revision */
+    /**< handle to i2c device file */
+    int i2cHandle;
+    /**< number of i2c bus, differs between raspberry pi versions */
+    int i2cBusNumber;
+    /**< version of raspberry pi, based on board revision from cpuinfo file */
+    RaspberryPiVersion piVersion;
+    /**< sets all PWM outputs, used internally */
+    void setAllPWM(const __u8 on, const __u8 off);
+    /**< returns i2c bus number specific for given raspberry pi version */
+    short getI2CBusNumber(void) const;
+    /**< returns raspberry pi version based on revision */
+    RaspberryPiVersion getRPiVersion(void) const;
 
 public:
     /**
      * @brief AdafruitServoDriver ctor
      * @param addr  address of I2C device, may be obtained using i2c-tools
      */
-    explicit AdafruitServoDriver(const __u8 addr, const __s8 i2cBusNumber_ = -1);
+    explicit AdafruitServoDriver(const __u8 addr,
+                                 const __s8 i2cBusNumber_ = -1);
     ~AdafruitServoDriver();
     /**
      * @brief SetPWMFreq sets frequency of output PWM signal.

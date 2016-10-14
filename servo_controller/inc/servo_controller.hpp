@@ -4,13 +4,15 @@
 #include <adafruit_servohat_driver.hpp>
 #include <vector>
 #include <memory>
+#include <thread>
+#include <mutex>
+#include <functional>
 
 using std::vector;
 using std::unique_ptr;
+using std::thread;
+using std::mutex;
 
-static const uint8_t SERVO_MIN = 150;  // Min pulse length out of 4096
-static const uint16_t SERVO_MAX = 450;  // Max pulse length out of 4096
-static const vector<uint8_t> ADDR = { 0x40 };
 
 /**
  * @brief The AdafruitServoController class provides an interface for controlling digital servo
@@ -38,11 +40,61 @@ static const vector<uint8_t> ADDR = { 0x40 };
  */
 class  AdafruitServoController
 {
+private:
     vector<unique_ptr<AdafruitServoDriver> > drivers; /**< vector of handles to adafruit servo hat drivers */
-    const uint16_t pulseMin = SERVO_MIN; /**< minimum pulse width used to drive single servo */
-    const uint16_t pulseMax = SERVO_MAX; /**< maximum, as above */
-    const vector<uint8_t> addresses = ADDR; /**< vector of addresses of servo hat modules */
 
+    uint16_t pulseMin; /**< minimum pulse width used to drive single servo */
+    uint16_t pulseMax; /**< maximum, as above */
+    vector<uint8_t> addresses; /**< vector of addresses of servo hat modules */
+    uint8_t pwmFreq;
+    thread servosThread;
+    mutex servosMutex;
+    bool run;
+
+    /**
+    * @brief AdafruitServoDriver creates easy to use interface for controlling multiple servos using multiple boards.
+    */
+    AdafruitServoController();
+
+    /**
+    * @brief calculateAngle assuming servo can take position between 1 and 180 degrees
+    * this method calculates pulse width thta's corresponding to given angle
+    * @param angle in degress (1-180)
+    * @return pulse width corresponding to the demanded angle
+    */
+    uint16_t angleToPulse(uint8_t angle) const
+    {
+        return (((angle - 1) * (this->pulseMax - this->pulseMin)) / (180 - 1)) + this->pulseMin;
+    }
+    /**
+     * @brief getDriverIdForServoId returns ID of servo driver that controlls given servo.
+     * Example: let's assume that one driver may controll 16 servos. If we want to access
+     * 30th servo method will calculate that it's controlled by 2nd driver and will return 1 (assuming
+     * that drivers ar 0-indexed).
+     * @param id id of servo
+     * @return id of driver controlling servo
+     */
+    std::pair<uint8_t, uint8_t> getDriverAndServoId(uint8_t id) const;
+
+
+    // speed controll stuff
+
+
+    void handleServos(void);
+
+    struct Servo {
+        uint8_t driverId;
+        uint8_t servoId;
+        uint16_t currentPulse;
+        uint16_t desiredPulse;
+        uint16_t rate;
+        Servo(uint8_t driverId_, uint8_t servoId_, uint16_t currentPulse_,
+              uint16_t desiredPulse_, uint16_t rate_) :
+            driverId(driverId_), servoId(servoId_), currentPulse(currentPulse_),
+            desiredPulse(desiredPulse_), rate(rate_) {}
+    };
+
+    vector<Servo> servos;
 public:
     /**
      * @brief getInstance getter method
@@ -60,37 +112,17 @@ public:
     * @brief Detor
     */
     ~AdafruitServoController();
+
+    void Init(vector<uint8_t> driversAddresses_, uint8_t pwmFreq_,
+              uint16_t pulseMin_, uint16_t pulseMax_);
+
     /**
     * @brief SetServo sets id-th servo in given angle
     * @param id of servo, assumption is that servo 0-15 are conencted to 1st module, 16-31 to the 2nd etc.
     * @param angle 1-180 degrees
     * @param speed 1-100 % TODo add non-blocking implementation using std::thread
     */
-    void setServo(uint8_t id, uint8_t angle, uint8_t speed = 100);
-private:
-    /**
-    * @brief AdafruitServoDriver creates easy to use interface for controlling multiple servos using multiple boards.
-    */
-    AdafruitServoController();
-
-    /**
-    * @brief calculateAngle calculates pulse width for given angle
-    * @param angle in degress (1-180)
-    * @return pulse width corresponding to the angle
-    */
-    uint16_t angleToPulse(uint8_t angle) const
-    {
-        return (((angle - 1) * (this->pulseMax - this->pulseMin)) / (180 - 1)) + this->pulseMin;
-    }
-    /**
-     * @brief getDriverIdForServoId returns ID of servo driver that controlls given servo.
-     * Example: let's assume that one driver may controll 16 servos. If we want to access
-     * 30th servo method will calculate that it's controlled by 2nd driver and will return 1 (assuming
-     * that drivers ar 0-indexed).
-     * @param id id of servo
-     * @return id of driver controlling servo
-     */
-     std::pair<uint8_t, uint8_t> getDriverAndServoId(uint8_t id) const;
+    void setServo(uint8_t id, uint16_t angle, uint8_t speed = 1);
 };
 
 #endif // SERVO_DRIVER_H
